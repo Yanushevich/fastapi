@@ -1,17 +1,45 @@
 from abc import ABC, abstractmethod
 from io import StringIO
+import pandas as pd
+import numpy as np
+from fastapi import UploadFile, HTTPException
+
+ar_dict = [(1000, 'M'), (900, 'CM'), (500, 'D'), (400, 'CD'), (100, 'C'), (90, 'XC'), (50, 'L'), (40, 'XL'), (10, 'X'),
+           (9, 'IX'), (5, 'V'), (4, 'IV'), (1, 'I')]
 
 
 def convert_arabic_to_roman(number: int) -> str:
-    pass
+    result = ""
+    while number > 0:
+        for a, r in ar_dict:
+            while number >= a:
+                result += r
+                number -= a
+    return result
 
 
 def convert_roman_to_arabic(number: str) -> int:
-    pass
+    result = 0
+    for a, r in ar_dict:
+        while number.startswith(r):
+            result += a
+            number = number[len(r):]
+    return result
 
 
-def average_age_by_position(file):
-    pass
+def average_age_by_position(file: UploadFile):
+    e = HTTPException(status_code=400, detail='Невалидный файл')
+    try:
+        file.filename.endswith('.csv')
+        df = pd.read_csv(file.file)
+        if list(df.columns) == ['Имя', 'Возраст', 'Должность']:
+            df = df.replace({np.nan: None})
+            avg_age = df.groupby(['Должность'])['Возраст'].mean().replace({np.nan: None})
+            return {str(key): (None if value is None else float(value)) for key, value in avg_age.items()}
+        else:
+            raise e
+    except Exception:
+        raise e
 
 
 """
@@ -24,6 +52,8 @@ write, классов JSONWritter, CSVWritter, YAMLWritter.
 
 Допишите реализацию методов и классов.
 """
+
+
 class BaseWriter(ABC):
     """Абстрактный класс с методом write для генерации файла"""
 

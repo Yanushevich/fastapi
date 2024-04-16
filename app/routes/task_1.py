@@ -12,13 +12,25 @@ router = APIRouter(tags=["Стажировка"])
     подобные слова вне зависимости от регистра исключаются.
     На выходе должны получить уникальный список слов в нижнем регистре.
 
-    Список слов для примера: ['Мама', 'МАМА', 'Мама', 'папа', 'ПАПА', 'Мама', 'ДЯдя', 'брАт', 'Дядя', 'Дядя', 'Дядя']
+    Список слов для примера: ["Мама", "МАМА", "Мама", "папа", "ПАПА", "Мама", "ДЯдя", "брАт", "Дядя", "Дядя", "Дядя"]
     Ожидаемый результат: ['папа','брат']
 """
 @router.post("/find_in_different_registers", description="Задание_1. Удаление дублей")
 async def find_in_different_registers(words: list[str]) -> list[str]:
     """Описание."""
 
-    result = []
+    repeated = list()
+    result_set = set()
 
-    return result
+    # Вносим повторяющиеся по регистру элементы в список
+    for word in words:
+        if words.count(word) > 1:
+            repeated.append(word.lower())
+            words.remove(word)
+
+    # Если элемент не в списке повторяющихся, добавляем в сет "не дублей"
+    for word in words:
+        if word.lower() not in repeated:
+            result_set.add(word.lower())
+
+    return sorted(result_set)

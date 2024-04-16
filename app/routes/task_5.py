@@ -1,5 +1,7 @@
-from fastapi import APIRouter
-
+from fastapi import APIRouter, UploadFile
+from zipfile import ZipFile, ZIP_DEFLATED
+from pathlib import Path
+from fastapi.responses import FileResponse
 
 router = APIRouter(tags=["API для хранения файлов"])
 
@@ -12,18 +14,28 @@ b.	Добавить архивирование к post запросу, то ес
 с*.Добавить аннотации типов.
 """
 @router.post("/upload_file", description="Задание_5. API для хранения файлов")
-async def upload_file(file):
+async def upload_file(file: UploadFile) -> int:
     """Описание."""
 
-    file_id: int
+    folder = Path('app/files/')
+    file_id = len(list(folder.iterdir())) + 1
 
-    return file_id
+    try:
+        with ZipFile(f"{folder}/{file_id}.zip", "w", compression=ZIP_DEFLATED, compresslevel=3) as myzip:
+            myzip.writestr(file.filename, file.file.read())
+            return file_id
+    except Exception as e:
+        raise e
 
 
 @router.get("/download_file/{file_id}", description="Задание_5. API для хранения файлов")
 async def download_file(file_id: int):
     """Описание."""
 
-    file = None
+    try:
+        folder = Path('app/files/')
+        file = FileResponse(path=f"{folder}/{file_id}.zip", filename=f"{file_id}.zip")
+        return file
+    except Exception as e:
+        raise e
 
-    return file

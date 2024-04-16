@@ -1,6 +1,7 @@
-from fastapi import APIRouter
+from datetime import datetime
 
 from app.models import BigJson
+from fastapi import APIRouter
 
 router = APIRouter(tags=["Стажировка"])
 
@@ -21,10 +22,9 @@ router = APIRouter(tags=["Стажировка"])
         "last_modification": "20/05/2023",  # формат даты должен соответствовать данному формату
         "list_of_skills": ["ловкий", "смелый"], # необязательное
         "mapping": {
-            list_of_ids: [1, "два"],
-            tags: {"стажировка", }  
-        },
-    
+            "list_of_ids": [1, "два"],
+            "tags": ["стажировка", ] 
+        }
     }
 }
 
